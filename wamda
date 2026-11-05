@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حارسات العالم الرقمي</title>
+<style>
+:root {
+  --primary:#6256c9;
+  --secondary:#8b80e8;
+  --light:#f3f1ff;
+  --ink:#292747;
+  --green:#249b77;
+  --red:#d65d69;
+  --gold:#e5a72e;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Tahoma,Arial,sans-serif;
+  background:linear-gradient(135deg,#f1efff,#e9f8f5,#fff7ed);
+  color:var(--ink);
+  min-height:100vh;
+  padding:20px;
+}
+.container {max-width:850px;margin:auto}
+header {
+  text-align:center;
+  padding:22px 10px;
+}
+.logo {font-size:55px}
+h1 {color:var(--primary);margin:8px 0;font-size:30px}
+.subtitle {color:#77718d;font-size:15px}
+.stats {
+  display:flex;justify-content:space-between;
+  gap:12px;margin:15px 0;
+}
+.stat {
+  background:white;padding:13px 18px;border-radius:15px;
+  box-shadow:0 4px 15px #5c51a315;flex:1;text-align:center;
+}
+.stat strong {display:block;font-size:22px;color:var(--primary)}
+.progress {
+  height:11px;background:#ddd9f2;border-radius:20px;
+  overflow:hidden;margin:15px 0 23px;
+}
+.progress-fill {
+  height:100%;width:0;background:linear-gradient(90deg,#8176e5,#39b99a);
+  transition:.4s;
+}
+.card {
+  background:white;border-radius:24px;padding:27px;
+  box-shadow:0 10px 35px #4c438b18;
+}
+.stage-label {
+  color:var(--primary);font-weight:bold;
+  background:var(--light);padding:8px 14px;
+  display:inline-block;border-radius:20px;font-size:14px;
+}
+.stage-title {font-size:25px;margin:17px 0 8px}
+.story {
+  background:#f8f7ff;padding:20px;border-radius:16px;
+  line-height:2;font-size:17px;margin:18px 0;
+  border-right:5px solid var(--secondary);
+}
+.choices {display:grid;gap:12px}
+.choice {
+  border:2px solid #e6e3f5;background:white;
+  padding:16px;border-radius:14px;text-align:right;
+  cursor:pointer;font-size:16px;font-family:inherit;
+  color:var(--ink);transition:.2s;
+}
+.choice:hover:not(:disabled) {
+  border-color:var(--primary);background:#f5f3ff;
+  transform:translateY(-2px);
+}
+.choice:disabled {cursor:default;opacity:1}
+.choice.correct {background:#e7f8f0;border-color:var(--green)}
+.choice.wrong {background:#fff0f0;border-color:var(--red)}
+.timer-row {
+  display:flex;justify-content:space-between;
+  align-items:center;margin:15px 0;
+}
+.timer {
+  font-size:21px;font-weight:bold;color:var(--red);
+}
+.feedback {
+  display:none;padding:18px;border-radius:15px;
+  margin-top:18px;line-height:1.9;
+}
+.feedback.good {display:block;background:#e8f8f0;color:#176b51}
+.feedback.bad {display:block;background:#fff0f0;color:#9b3e48}
+button.main {
+  border:0;border-radius:14px;padding:14px 25px;
+  background:var(--primary);color:white;font-size:16px;
+  font-family:inherit;cursor:pointer;margin-top:18px;
+}
+button.main:hover {background:#4c40ad}
+button.main:disabled {opacity:.5;cursor:not-allowed}
+.center {text-align:center}
+.hidden {display:none}
+.footer {text-align:center;color:#888;font-size:12px;margin:20px}
+.end-icon {font-size:75px;margin:10px}
+.final-score {font-size:45px;color:var(--primary);font-weight:bold}
+@media(max-width:550px) {
+  body {padding:10px}
+  .stats {gap:6px}
+  .stat {padding:10px 5px;font-size:13px}
+  .stat strong {font-size:19px}
+  .card {padding:19px}
+  h1 {font-size:24px}
+  .story {font-size:15px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">🛡️💻✨</div>
+  <h1>حارسات العالم الرقمي</h1>
+  <div class="subtitle">مغامرة تقنية لاكتشاف أسرار الاستخدام الآمن للتقنية</div>
+</header>
+
+<div class="stats">
+  <div class="stat">⭐ النقاط<strong id="score">0</strong></div>
+  <div class="stat">🎯 المرحلة<strong id="stageNum">0 / 5</strong></div>
+  <div class="stat">⏱️ الوقت<strong id="topTimer">30</strong></div>
+</div>
+
+<div class="progress"><div class="progress-fill" id="progress"></div></div>
+
+<section class="card center" id="welcome">
+  <div class="end-icon">🌟</div>
+  <h2>هل أنتِ مستعدة للمهمة؟</h2>
+  <p style="line-height:2">
+    يواجه العالم الرقمي تحديات كثيرة، ومهمتكِ أن تكوني حارسة ذكية
+    تحمي بياناتكِ وصوركِ وأجهزتكِ.
+    <br>اجتازي خمس مراحل واجمعي أكبر عدد من النقاط!
+  </p>
+  <button class="main" onclick="startGame()">🚀 ابدئي المغامرة</button>
+</section>
+
+<section class="card hidden" id="game">
+  <span class="stage-label" id="stageLabel">المهمة الأولى</span>
+  <h2 class="stage-title" id="title"></h2>
+  <div class="timer-row">
+    <strong>اختاري القرار الأكثر أماناً:</strong>
+    <span class="timer">⏱️ <span id="timer">30</span> ثانية</span>
+  </div>
+  <div class="story" id="story"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="center">
+    <button class="main hidden" id="next" onclick="nextStage()">
+      المرحلة التالية ←
+    </button>
+  </div>
+</section>
+
+<section class="card center hidden" id="result">
+  <div class="end-icon" id="endIcon"></div>
+  <h2 id="endTitle"></h2>
+  <div class="final-score" id="finalScore"></div>
+  <p id="endMessage" style="line-height:2"></p>
+  <button class="main" onclick="restart()">🔄 أعيدي اللعب</button>
+</section>
+
+<div class="footer">
+  الاستخدام الآمن للتقنية مسؤولية الجميع 💜
+</div>
+</div>
+
+<script>
+const stages = [
+{
+ title:"🔐 كلمة السر القوية",
+ story:"وصلتكِ رسالة تطلب منكِ إنشاء كلمة مرور لحسابكِ المدرسي. أي كلمة مرور تختارين؟",
+ choices:[
+  "123456 لأنها سهلة التذكر",
+  "اسمي وتاريخ ميلادي",
+  "كلمة مرور طويلة وفريدة تجمع بين الحروف والأرقام والرموز"
+ ],
+ correct:2,
+ reason:"أحسنتِ! كلمة المرور الطويلة والفريدة والصعبة التخمين تحمي حسابكِ. لا تشاركيها مع الآخرين، ولا تستخدمي الكلمة نفسها لكل الحسابات."
+},
+{
+ title:"🔗 الروابط المشبوهة",
+ story:"وصلتكِ رسالة مجهولة تقول: مبروك! ربحتِ هاتفاً جديداً، اضغطي هنا وأدخلي بيانات حسابكِ لاستلام الجائزة. ماذا تفعلين؟",
+ choices:[
+  "أضغط على الرابط بسرعة للحصول على الجائزة",
+  "أتجاهل الرابط ولا أدخل بياناتي وأتحقق من المصدر الرسمي",
+  "أرسل الرابط إلى صديقاتي"
+ ],
+ correct:1,
+ reason:"رائع! الرسائل التي تعد بجوائز وتطلب بياناتكِ قد تكون محاولات تصيد إلكتروني. لا تضغطي على الروابط المشبوهة، وتحققي من المصدر الرسمي."
+},
+{
+ title:"📸 مشاركة الصور",
+ story:"طلبت منكِ صديقة إرسال صورة خاصة لكِ عبر حساب لا تعرفينه جيداً. ما التصرف الصحيح؟",
+ choices:[
+  "أرسل الصورة لأن الشخص يبدو لطيفاً",
+  "أنشر الصورة في مجموعة كبيرة",
+  "أرفض مشاركة الصور الخاصة وأحافظ على خصوصيتي"
+ ],
+ correct:2,
+ reason:"قرار آمن! الصور الخاصة قد تنتشر دون إذنكِ. فكري جيداً قبل مشاركة أي صورة، ولا ترسلي صوراً شخصية لأشخاص غير موثوقين."
+},
+{
+ title:"🛡️ الخصوصية الرقمية",
+ story:"طلب تطبيق جديد الوصول إلى موقعكِ وجهات اتصالكِ وصوركِ رغم أن هذه الصلاحيات غير ضرورية لعمله. ماذا تفعلين؟",
+ choices:[
+  "أوافق على جميع الصلاحيات",
+  "أراجع الصلاحيات وأرفض غير الضروري منها",
+  "أعطي التطبيق بيانات صديقاتي أيضاً"
+ ],
+ correct:1,
+ reason:"ممتاز! حماية الخصوصية تعني مشاركة أقل قدر ممكن من البيانات. راجعي أذونات التطبيقات باستمرار، ولا تمنحيها صلاحيات لا تحتاج إليها."
+},
+{
+ title:"🚨 الإبلاغ عن الإساءة",
+ story:"تعرضت زميلتكِ لتعليقات مسيئة وتنمر عبر الإنترنت. ما أفضل تصرف؟",
+ choices:[
+  "أرد على المتنمر بإساءة مماثلة",
+  "أتجاهل الأمر تماماً وأطلب منها ألا تخبر أحداً",
+  "أحتفظ بالدليل دون إعادة نشره، وأبلغ شخصاً بالغاً موثوقاً وأستخدم خاصية الإبلاغ"
+ ],
+ correct:2,
+ reason:"أحسنتِ! الإبلاغ عن التنمر الإلكتروني خطوة شجاعة. احتفظي بالأدلة بأمان، ولا تدخلي في مشاجرات، واطلبي مساعدة المعلمة أو ولي الأمر."
+}
+];
+
+let score=0;
+let current=0;
+let timeLeft=30;
+let interval=null;
+let answered=false;
+
+const $=id=>document.getElementById(id);
+
+function updateStats(){
+ $("score").textContent=score;
+ $("stageNum").textContent=current+" / 5";
+ $("progress").style.width=(current/5*100)+"%";
+ $("topTimer").textContent=timeLeft;
+}
+
+function startGame(){
+ $("welcome").classList.add("hidden");
+ $("result").classList.add("hidden");
+ $("game").classList.remove("hidden");
+ current=0;
+ score=0;
+ loadStage();
+}
+
+function loadStage(){
+ clearInterval(interval);
+ answered=false;
+ timeLeft=30;
+ const s=stages[current];
+
+ $("stageLabel").textContent="المهمة "+["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][current];
+ $("title").textContent=s.title;
+ $("story").textContent=s.story;
+ $("timer").textContent=timeLeft;
+ $("feedback").className="feedback";
+ $("feedback").textContent="";
+ $("next").classList.add("hidden");
+ $("choices").innerHTML="";
+
+ s.choices.forEach((choice,i)=>{
+  const btn=document.createElement("button");
+  btn.className="choice";
+  btn.textContent=["أ","ب","ج"][i]+" — "+choice;
+  btn.onclick=()=>choose(i);
+  $("choices").appendChild(btn);
+ });
+
+ updateStats();
+ interval=setInterval(()=>{
+  if(answered)return;
+  timeLeft--;
+  $("timer").textContent=timeLeft;
+  $("topTimer").textContent=timeLeft;
+  if(timeLeft<=0){
+   clearInterval(interval);
+   timeUp();
+  }
+ },1000);
+}
+
+function choose(index){
+ if(answered)return;
+ answered=true;
+ clearInterval(interval);
+
+ const s=stages[current];
+ const buttons=$("choices").querySelectorAll("button");
+ buttons.forEach((btn,i)=>{
+  btn.disabled=true;
+  if(i===s.correct)btn.classList.add("correct");
+  else if(i===index)btn.classList.add("wrong");
+ });
+
+ if(index===s.correct){
+  score+=10;
+  showFeedback(true,"🌟 إجابة صحيحة! +10 نقاط. ",s.reason);
+ }else{
+  showFeedback(false,"💡 ليست الإجابة الأكثر أماناً. ",s.reason);
+ }
+ finishStage();
+}
+
+function timeUp(){
+ if(answered)return;
+ answered=true;
+ const s=stages[current];
+ const buttons=$("choices").querySelectorAll("button");
+ buttons.forEach((btn,i)=>{
+  btn.disabled=true;
+  if(i===s.correct)btn.classList.add("correct");
+ });
+ showFeedback(false,"⏰ انتهى الوقت! لم تحصلي على نقاط هذه المرحلة. ",s.reason);
+ finishStage();
+}
+
+function showFeedback(good,heading,reason){
+ const box=$("feedback");
+ box.className="feedback "+(good?"good":"bad");
+ box.innerHTML="<strong>"+heading+"</strong><br>"+reason;
+}
+
+function finishStage(){
+ updateStats();
+ $("next").classList.remove("hidden");
+ $("next").textContent=current===4?"🏆 عرض النتيجة":"المرحلة التالية ←";
+}
+
+function nextStage(){
+ current++;
+ $("stageNum").textContent=current+" / 5";
+ $("progress").style.width=(current/5*100)+"%";
+ if(current>=5){
+  showResult();
+ }else{
+  loadStage();
+ }
+}
+
+function showResult(){
+ clearInterval(interval);
+ $("game").classList.add("hidden");
+ $("result").classList.remove("hidden");
+ $("finalScore").textContent=score+" / 50";
+
+ if(score>=40){
+  $("endIcon").textContent="🏆👑";
+  $("endTitle").textContent="حارسة العالم الرقمي!";
+  $("endMessage").textContent="أبدعتِ! أنتِ حارسة واعية تعرف كيف تحمي نفسها والآخرين في العالم الرقمي. واصلي التميز!";
+ }else if(score>=20){
+  $("endIcon").textContent="🌱💜";
+  $("endTitle").textContent="خطوات نحو الأمان";
+  $("endMessage").textContent="أحسنتِ المحاولة! لديكِ معرفة جيدة، وتحتاجين إلى مراجعة بعض قواعد الاستخدام الآمن للتقنية. أعيدي المغامرة لتصبحي أقوى!";
+ }else{
+  $("endIcon").textContent="⚠️🛡️";
+  $("endTitle").textContent="رحلتكِ نحو الأمان مستمرة";
+  $("endMessage").textContent="لا تستسلمي! تعلّمي قواعد حماية الحسابات والخصوصية والإبلاغ، ثم أعيدي اللعب. كل محاولة تقربكِ من الأمان الرقمي.";
+ }
+ $("stageNum").textContent="5 / 5";
+ $("topTimer").textContent="0";
+ $("progress").style.width="100%";
+}
+
+function restart(){
+ $("result").classList.add("hidden");
+ $("welcome").classList.remove("hidden");
+ $("progress").style.width="0";
+ $("stageNum").textContent="0 / 5";
+ $("topTimer").textContent="30";
+ $("score").textContent="0";
+}
+</script>
+</body>
+</html>
